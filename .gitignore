@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+venv/
+env/
+
+# Keys & Certificates (NEVER commit private keys)
+storage/root_ca/*.key
+storage/intermediate_ca/*.key
+storage/issued/*.key
+
+# Database
+*.db
+*.sqlite
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Flask
+instance/
