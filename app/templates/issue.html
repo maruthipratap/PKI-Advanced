@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Issue Certificate — PKI-Advanced{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-label">// certificate authority</div>
+    <h1 class="page-title">Issue New Certificate</h1>
+    <p class="page-sub">Generates an X.509 certificate signed by the Intermediate CA</p>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start">
+
+    <!-- Form -->
+    <div class="card">
+        <form method="POST" action="/issue">
+            <div class="form-group">
+                <label for="owner_name">Common Name (CN) *</label>
+                <input type="text" id="owner_name" name="owner_name"
+                    placeholder="e.g. John Doe" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address (SAN)</label>
+                <input type="email" id="email" name="email"
+                    placeholder="e.g. john@example.com">
+            </div>
+            <div class="form-group">
+                <label for="organization">Organization</label>
+                <input type="text" id="organization" name="organization"
+                    placeholder="e.g. Acme Corp">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:0.5rem">
+                🔏 Issue Certificate
+            </button>
+        </form>
+    </div>
+
+    <!-- Info panel -->
+    <div style="display:flex; flex-direction:column; gap:1rem">
+
+        <div class="card">
+            <div class="page-label" style="margin-bottom:0.75rem">// certificate chain</div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem">
+                <div style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; background:var(--surface); border-radius:8px; border:1px solid var(--border)">
+                    <span style="font-size:1.2rem">🏛️</span>
+                    <div>
+                        <div style="font-size:0.8rem; font-weight:700; color:var(--heading)">Root CA</div>
+                        <div style="font-size:0.7rem; color:var(--muted)">Self-signed · 10 years</div>
+                    </div>
+                    <span class="badge badge-active" style="margin-left:auto">TRUST ANCHOR</span>
+                </div>
+                <div style="padding-left:1.5rem; color:var(--muted); font-size:1rem">↓</div>
+                <div style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; background:var(--surface); border-radius:8px; border:1px solid var(--border)">
+                    <span style="font-size:1.2rem">🔏</span>
+                    <div>
+                        <div style="font-size:0.8rem; font-weight:700; color:var(--heading)">Intermediate CA</div>
+                        <div style="font-size:0.7rem; color:var(--muted)">Signed by Root · 5 years</div>
+                    </div>
+                    <span class="badge badge-active" style="margin-left:auto">SIGNING CA</span>
+                </div>
+                <div style="padding-left:1.5rem; color:var(--muted); font-size:1rem">↓</div>
+                <div style="display:flex; align-items:center; gap:0.75rem; padding:0.75rem; background:rgba(0,212,255,0.05); border-radius:8px; border:1px solid rgba(0,212,255,0.2)">
+                    <span style="font-size:1.2rem">📜</span>
+                    <div>
+                        <div style="font-size:0.8rem; font-weight:700; color:var(--accent)">Your Certificate</div>
+                        <div style="font-size:0.7rem; color:var(--muted)">Signed by Intermediate · 1 year</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="page-label" style="margin-bottom:0.75rem">// included extensions</div>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.8rem">
+                <div style="display:flex; justify-content:space-between">
+                    <span class="text-muted">BasicConstraints</span>
+                    <span class="mono text-accent">CA:FALSE</span>
+                </div>
+                <div style="display:flex; justify-content:space-between">
+                    <span class="text-muted">KeyUsage</span>
+                    <span class="mono text-accent">digitalSignature</span>
+                </div>
+                <div style="display:flex; justify-content:space-between">
+                    <span class="text-muted">ExtKeyUsage</span>
+                    <span class="mono text-accent">clientAuth</span>
+                </div>
+                <div style="display:flex; justify-content:space-between">
+                    <span class="text-muted">SAN</span>
+                    <span class="mono text-accent">DNS + Email</span>
+                </div>
+                <div style="display:flex; justify-content:space-between">
+                    <span class="text-muted">Algorithm</span>
+                    <span class="mono text-accent">SHA256withRSA</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

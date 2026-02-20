@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — PKI-Advanced{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-label">// system overview</div>
+    <h1 class="page-title">Certificate Authority Dashboard</h1>
+    <p class="page-sub">PKI-Advanced Root CA &rarr; Intermediate CA &rarr; End-Entity Certificates</p>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+    <div class="stat-card total">
+        <div class="stat-label">Total Issued</div>
+        <div class="stat-value">{{ total }}</div>
+    </div>
+    <div class="stat-card active">
+        <div class="stat-label">Active</div>
+        <div class="stat-value">{{ active }}</div>
+    </div>
+    <div class="stat-card revoked">
+        <div class="stat-label">Revoked</div>
+        <div class="stat-value">{{ revoked }}</div>
+    </div>
+</div>
+
+<!-- Recent Certificates -->
+<div class="card">
+    <div class="flex items-center justify-between" style="margin-bottom:1.25rem">
+        <div>
+            <div class="page-label" style="margin-bottom:0.2rem">// recent activity</div>
+            <h2 style="font-size:1rem; font-weight:700; color:var(--heading)">Latest Certificates</h2>
+        </div>
+        <a href="/certificates" class="btn btn-ghost" style="font-size:0.78rem">View All →</a>
+    </div>
+
+    {% if recent %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Owner</th>
+                    <th>Organization</th>
+                    <th>Issued At</th>
+                    <th>Expires</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cert in recent %}
+                <tr>
+                    <td style="color:var(--heading); font-weight:600">{{ cert.owner_name }}</td>
+                    <td class="text-muted">{{ cert.organization or '—' }}</td>
+                    <td class="mono" style="font-size:0.78rem">{{ cert.issued_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="mono" style="font-size:0.78rem">{{ cert.valid_to.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if cert.status == 'ACTIVE' %}
+                            <span class="badge badge-active">● ACTIVE</span>
+                        {% else %}
+                            <span class="badge badge-revoked">✕ REVOKED</span>
+                        {% endif %}
+                    </td>
+                    <td><a href="/view/{{ cert.id }}" class="text-accent" style="font-size:0.8rem; text-decoration:none">View →</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:3rem; color:var(--muted)">
+        <div style="font-size:2.5rem; margin-bottom:0.75rem">📋</div>
+        <div style="font-size:0.9rem">No certificates issued yet.</div>
+        <a href="/issue" class="btn btn-primary" style="margin-top:1rem; display:inline-flex">Issue First Certificate</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Quick Actions -->
+<div class="actions-grid">
+    <a href="/issue" class="action-card">
+        <div class="action-icon">📜</div>
+        <div class="action-title">Issue Certificate</div>
+        <div class="action-desc">Generate a new X.509 certificate signed by Intermediate CA</div>
+        <div class="action-arrow">→ Issue now</div>
+    </a>
+    <a href="/verify" class="action-card">
+        <div class="action-icon">🔍</div>
+        <div class="action-title">Verify Certificate</div>
+        <div class="action-desc">Check signature validity, expiry, and revocation status</div>
+        <div class="action-arrow">→ Verify now</div>
+    </a>
+    <a href="/revoke" class="action-card">
+        <div class="action-icon">🚫</div>
+        <div class="action-title">Revoke Certificate</div>
+        <div class="action-desc">Add certificate to CRL and mark as revoked in database</div>
+        <div class="action-arrow">→ Revoke now</div>
+    </a>
+</div>
+{% endblock %}

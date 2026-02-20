@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Verify Certificate — PKI-Advanced{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-label">// certificate validation</div>
+    <h1 class="page-title">Verify Certificate</h1>
+    <p class="page-sub">Checks signature, expiry date, and CRL revocation status</p>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start">
+
+    <div class="card">
+        <form method="POST" action="/verify">
+            <div class="form-group">
+                <label for="owner_name">Certificate Owner Name</label>
+                <input type="text" id="owner_name" name="owner_name"
+                    placeholder="Enter exact owner name" required autocomplete="off"
+                    value="{{ result.owner if result else '' }}">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center">
+                🔍 Verify Certificate
+            </button>
+        </form>
+
+        {% if result %}
+        <div class="result-box result-{{ result.status | lower }}">
+            {% if result.status == 'VALID' %}
+                <div class="result-icon">✅</div>
+                <div class="result-status">VALID</div>
+                <div style="font-size:0.85rem; color:var(--muted)">Certificate is active, trusted and not expired</div>
+            {% elif result.status == 'REVOKED' %}
+                <div class="result-icon">🚫</div>
+                <div class="result-status">REVOKED</div>
+                <div style="font-size:0.85rem; color:var(--muted)">Certificate has been revoked and is not trusted</div>
+            {% elif result.status == 'EXPIRED' %}
+                <div class="result-icon">⏰</div>
+                <div class="result-status">EXPIRED</div>
+                <div style="font-size:0.85rem; color:var(--muted)">Certificate validity period has ended</div>
+            {% else %}
+                <div class="result-icon">❓</div>
+                <div class="result-status">NOT FOUND</div>
+                <div style="font-size:0.85rem; color:var(--muted)">No certificate found for "{{ result.owner }}"</div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Cert details if found -->
+    <div>
+        {% if result and result.cert %}
+        <div class="card">
+            <div class="page-label" style="margin-bottom:1rem">// certificate details</div>
+            <div class="cert-field">
+                <span class="cert-field-label">Owner</span>
+                <span class="cert-field-value">{{ result.cert.owner_name }}</span>
+            </div>
+            <div class="cert-field">
+                <span class="cert-field-label">Email</span>
+                <span class="cert-field-value">{{ result.cert.email or '—' }}</span>
+            </div>
+            <div class="cert-field">
+                <span class="cert-field-label">Organization</span>
+                <span class="cert-field-value">{{ result.cert.organization or '—' }}</span>
+            </div>
+            <div class="cert-field">
+                <span class="cert-field-label">Issued By</span>
+                <span class="cert-field-value">{{ result.cert.issued_by }}</span>
+            </div>
+            <div class="cert-field">
+                <span class="cert-field-label">Valid From</span>
+                <span class="cert-field-value">{{ result.cert.valid_from.strftime('%Y-%m-%d %H:%M UTC') }}</span>
+            </div>
+            <div class="cert-field">
+                <span class="cert-field-label">Valid To</span>
+                <span class="cert-field-value">{{ result.cert.valid_to.strftime('%Y-%m-%d %H:%M UTC') }}</span>
+            </div>
+            <div class="cert-field">
+                <span class="cert-field-label">Status</span>
+                <span class="cert-field-value">
+                    {% if result.cert.status == 'ACTIVE' and not result.cert.is_expired() %}
+                        <span class="badge badge-active">● ACTIVE</span>
+                    {% elif result.cert.status == 'REVOKED' %}
+                        <span class="badge badge-revoked">✕ REVOKED</span>
+                    {% else %}
+                        <span class="badge badge-expired">⏰ EXPIRED</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div style="margin-top:1rem">
+                <a href="/view/{{ result.cert.id }}" class="btn btn-ghost" style="font-size:0.8rem">View Full Certificate →</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="card" style="text-align:center; padding:3rem; color:var(--muted)">
+            <div style="font-size:2.5rem; margin-bottom:0.75rem">🔍</div>
+            <div style="font-size:0.9rem">Enter an owner name to check their certificate status</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Checks explained -->
+<div class="card" style="margin-top:1.5rem">
+    <div class="page-label" style="margin-bottom:1rem">// validation checks performed</div>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; font-size:0.82rem">
+        <div style="display:flex; gap:0.75rem; align-items:flex-start">
+            <span style="color:var(--accent2); font-size:1.2rem">✓</span>
+            <div>
+                <div style="font-weight:700; color:var(--heading); margin-bottom:0.2rem">Signature Check</div>
+                <div class="text-muted">Verifies SHA256withRSA signature against Intermediate CA public key</div>
+            </div>
+        </div>
+        <div style="display:flex; gap:0.75rem; align-items:flex-start">
+            <span style="color:var(--accent2); font-size:1.2rem">✓</span>
+            <div>
+                <div style="font-weight:700; color:var(--heading); margin-bottom:0.2rem">Expiry Check</div>
+                <div class="text-muted">Confirms current date is within the certificate validity window</div>
+            </div>
+        </div>
+        <div style="display:flex; gap:0.75rem; align-items:flex-start">
+            <span style="color:var(--accent2); font-size:1.2rem">✓</span>
+            <div>
+                <div style="font-weight:700; color:var(--heading); margin-bottom:0.2rem">CRL Check</div>
+                <div class="text-muted">Cross-checks serial number against Certificate Revocation List</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

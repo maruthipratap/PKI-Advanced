@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Revoke Certificate — PKI-Advanced{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-label">// certificate revocation</div>
+    <h1 class="page-title">Revoke Certificate</h1>
+    <p class="page-sub">Marks certificate as revoked and adds to the Certificate Revocation List</p>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start">
+
+    <div class="card">
+        <!-- Danger warning -->
+        <div style="background:rgba(255,69,96,0.08); border:1px solid rgba(255,69,96,0.25); border-radius:8px; padding:1rem; margin-bottom:1.5rem; display:flex; gap:0.75rem">
+            <span style="font-size:1.2rem">⚠️</span>
+            <div style="font-size:0.82rem; color:#ff8099">
+                <strong style="color:var(--danger)">Warning:</strong> Revocation is permanent. Once revoked, a certificate cannot be reactivated.
+            </div>
+        </div>
+
+        <form method="POST" action="/revoke">
+            <div class="form-group">
+                <label for="owner_name">Select Certificate Owner</label>
+                <select id="owner_name" name="owner_name" required>
+                    <option value="" disabled selected>— Select owner —</option>
+                    {% for cert in active_certs %}
+                    <option value="{{ cert.owner_name }}">
+                        {{ cert.owner_name }} {% if cert.email %}({{ cert.email }}){% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="reason">Revocation Reason</label>
+                <select id="reason" name="reason">
+                    <option value="Key Compromise">Key Compromise</option>
+                    <option value="CA Compromise">CA Compromise</option>
+                    <option value="Affiliation Changed">Affiliation Changed</option>
+                    <option value="Superseded">Superseded</option>
+                    <option value="Cessation of Operation">Cessation of Operation</option>
+                    <option value="Privilege Withdrawn">Privilege Withdrawn</option>
+                    <option value="No reason provided">No reason provided</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-danger" style="width:100%; justify-content:center"
+                onclick="return confirm('Are you sure? This action cannot be undone.')">
+                🚫 Revoke Certificate
+            </button>
+        </form>
+
+        {% if not active_certs %}
+        <div style="text-align:center; padding:2rem; color:var(--muted)">
+            <div style="font-size:2rem; margin-bottom:0.5rem">✅</div>
+            <div style="font-size:0.85rem">No active certificates to revoke.</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Info -->
+    <div style="display:flex; flex-direction:column; gap:1rem">
+        <div class="card">
+            <div class="page-label" style="margin-bottom:0.75rem">// what happens on revocation</div>
+            <div style="display:flex; flex-direction:column; gap:0.75rem; font-size:0.82rem">
+                <div style="display:flex; gap:0.75rem">
+                    <span style="color:var(--danger); font-weight:700; min-width:1.5rem">1.</span>
+                    <div><span style="color:var(--heading)">Status updated</span> — Certificate marked as REVOKED in MySQL database</div>
+                </div>
+                <div style="display:flex; gap:0.75rem">
+                    <span style="color:var(--danger); font-weight:700; min-width:1.5rem">2.</span>
+                    <div><span style="color:var(--heading)">CRL entry added</span> — Serial number logged with timestamp and reason code</div>
+                </div>
+                <div style="display:flex; gap:0.75rem">
+                    <span style="color:var(--danger); font-weight:700; min-width:1.5rem">3.</span>
+                    <div><span style="color:var(--heading)">Verification fails</span> — Any future verify check will return REVOKED status</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="page-label" style="margin-bottom:0.75rem">// active certificates</div>
+            {% if active_certs %}
+            <div style="display:flex; flex-direction:column; gap:0.5rem">
+                {% for cert in active_certs %}
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:0.6rem 0.75rem; background:var(--surface); border-radius:6px; border:1px solid var(--border)">
+                    <div>
+                        <div style="font-size:0.82rem; font-weight:600; color:var(--heading)">{{ cert.owner_name }}</div>
+                        <div style="font-size:0.7rem; color:var(--muted)">Expires {{ cert.valid_to.strftime('%Y-%m-%d') }}</div>
+                    </div>
+                    <span class="badge badge-active">● ACTIVE</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="color:var(--muted); font-size:0.85rem">No active certificates.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
