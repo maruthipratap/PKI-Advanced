@@ -35,5 +35,13 @@ def create_app():
     with app.app_context():
         from app.models import certificate_db
         db.create_all()
+    # ── Initialize CA hierarchy on first run ──────────
+        from app.ca.root_ca         import generate_root_ca
+        from app.ca.intermediate_ca import generate_intermediate_ca
 
+        print("\n[STARTUP] Initializing CA hierarchy...")
+        generate_root_ca()
+        generate_intermediate_ca()
+        print("[STARTUP] CA hierarchy ready!\n")
+        
     return app
