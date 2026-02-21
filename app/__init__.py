@@ -25,11 +25,13 @@ def create_app():
     from app.routes.issue     import issue_bp
     from app.routes.verify    import verify_bp
     from app.routes.revoke    import revoke_bp
+    from app.routes.crl_ocsp  import crl_ocsp_bp
 
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(issue_bp)
     app.register_blueprint(verify_bp)
     app.register_blueprint(revoke_bp)
+    app.register_blueprint(crl_ocsp_bp)
 
     # Create DB tables if they don't exist
     with app.app_context():
@@ -43,5 +45,5 @@ def create_app():
         generate_root_ca()
         generate_intermediate_ca()
         print("[STARTUP] CA hierarchy ready!\n")
-        
+
     return app

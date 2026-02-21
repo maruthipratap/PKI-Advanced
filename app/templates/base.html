@@ -520,12 +520,15 @@
     </a>
 
     <ul class="nav-links">
-        <li><a href="/"           class="{% if request.path == '/' %}active{% endif %}">⬡ Dashboard</a></li>
-        <li><a href="/issue"      class="{% if request.path == '/issue' %}active{% endif %}">＋ Issue</a></li>
-        <li><a href="/verify"     class="{% if request.path == '/verify' %}active{% endif %}">✓ Verify</a></li>
-        <li><a href="/revoke"     class="{% if request.path == '/revoke' %}active{% endif %}">✕ Revoke</a></li>
-        <li><a href="/certificates">≡ All Certs</a></li>
+        <li><a href="/"              class="{% if request.path == '/' %}active{% endif %}">⬡ Dashboard</a></li>
+        <li><a href="/issue"         class="{% if request.path == '/issue' %}active{% endif %}">＋ Issue</a></li>
+        <li><a href="/verify"        class="{% if request.path == '/verify' %}active{% endif %}">✓ Verify</a></li>
+        <li><a href="/revoke"        class="{% if request.path == '/revoke' %}active{% endif %}">✕ Revoke</a></li>
+        <li><a href="/certificates"  class="{% if request.path == '/certificates' %}active{% endif %}">≡ Certs</a></li>
+        <li><a href="/crl"           class="{% if request.path == '/crl' %}active{% endif %}">📋 CRL</a></li>
+        <li><a href="/ocsp"          class="{% if request.path == '/ocsp' %}active{% endif %}">⚡ OCSP</a></li>
     </ul>
+
 
     <div class="nav-status">
         <div class="status-dot"></div>

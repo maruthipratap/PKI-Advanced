@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Certificate Revocation List — PKI-Advanced{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-label">// certificate revocation list</div>
+    <h1 class="page-title">CRL — Revocation List</h1>
+    <p class="page-sub">Signed by Intermediate CA · Valid for 7 days</p>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start">
+
+    <div class="card">
+        <div class="page-label" style="margin-bottom:1rem">// crl metadata</div>
+        {% if crl_info %}
+        <div class="cert-field">
+            <span class="cert-field-label">Issuer</span>
+            <span class="cert-field-value mono" style="font-size:0.75rem">{{ crl_info.issuer }}</span>
+        </div>
+        <div class="cert-field">
+            <span class="cert-field-label">Last Update</span>
+            <span class="cert-field-value">{{ crl_info.last_update }}</span>
+        </div>
+        <div class="cert-field">
+            <span class="cert-field-label">Next Update</span>
+            <span class="cert-field-value">{{ crl_info.next_update }}</span>
+        </div>
+        <div class="cert-field">
+            <span class="cert-field-label">Revoked Certificates</span>
+            <span class="cert-field-value text-danger" style="font-size:1.5rem; font-weight:800">
+                {{ crl_info.revoked_count }}
+            </span>
+        </div>
+        {% endif %}
+        <div style="margin-top:1.5rem; display:flex; gap:0.75rem">
+            <a href="/crl/download" class="btn btn-primary">⬇ Download CRL</a>
+            <a href="/crl" class="btn btn-ghost">↺ Regenerate</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="page-label" style="margin-bottom:0.75rem">// crl pem</div>
+        <div class="pem-block">{{ crl_pem }}</div>
+    </div>
+</div>
+{% endblock %}

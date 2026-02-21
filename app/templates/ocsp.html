@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}OCSP Responder — PKI-Advanced{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-label">// online certificate status protocol</div>
+    <h1 class="page-title">OCSP Responder</h1>
+    <p class="page-sub">Real-time certificate status check by serial number</p>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start">
+
+    <div class="card">
+        <form method="POST" action="/ocsp">
+            <div class="form-group">
+                <label for="serial">Certificate Serial Number</label>
+                <input type="text" id="serial" name="serial"
+                    placeholder="Paste serial number here" required autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center">
+                ⚡ Check Status (OCSP)
+            </button>
+        </form>
+
+        <div style="margin-top:1.5rem; padding:1rem; background:var(--surface); border-radius:8px; border:1px solid var(--border)">
+            <div class="page-label" style="margin-bottom:0.5rem">// api endpoint</div>
+            <div class="mono" style="font-size:0.75rem; color:var(--accent2)">
+                GET /ocsp/&lt;serial_number&gt;
+            </div>
+            <div style="font-size:0.75rem; color:var(--muted); margin-top:0.4rem">
+                Returns JSON OCSP response — integrates with any PKI client
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        {% if result %}
+        <div class="page-label" style="margin-bottom:1rem">// ocsp response</div>
+        {% set status = result.ocsp_response.cert_status.status %}
+        <div class="result-box result-{{ 'valid' if status == 'GOOD' else 'revoked' if status == 'REVOKED' else 'expired' if status == 'EXPIRED' else 'unknown' }}"
+             style="margin-top:0; margin-bottom:1.5rem">
+            {% if status == 'GOOD' %}
+                <div class="result-icon">✅</div>
+                <div class="result-status">GOOD</div>
+            {% elif status == 'REVOKED' %}
+                <div class="result-icon">🚫</div>
+                <div class="result-status">REVOKED</div>
+            {% elif status == 'EXPIRED' %}
+                <div class="result-icon">⏰</div>
+                <div class="result-status">EXPIRED</div>
+            {% else %}
+                <div class="result-icon">❓</div>
+                <div class="result-status">UNKNOWN</div>
+            {% endif %}
+        </div>
+
+        <div class="cert-field">
+            <span class="cert-field-label">Responder</span>
+            <span class="cert-field-value mono" style="font-size:0.72rem">{{ result.ocsp_response.responder }}</span>
+        </div>
+        <div class="cert-field">
+            <span class="cert-field-label">Produced At</span>
+            <span class="cert-field-value">{{ result.ocsp_response.produced_at }}</span>
+        </div>
+        <div class="cert-field">
+            <span class="cert-field-label">Next Update</span>
+            <span class="cert-field-value">{{ result.ocsp_response.next_update }}</span>
+        </div>
+        <div class="cert-field">
+            <span class="cert-field-label">Signature Algorithm</span>
+            <span class="cert-field-value mono">{{ result.ocsp_response.signature_alg }}</span>
+        </div>
+        {% else %}
+        <div style="text-align:center; padding:3rem; color:var(--muted)">
+            <div style="font-size:2.5rem; margin-bottom:0.75rem">⚡</div>
+            <div style="font-size:0.85rem">Enter a serial number to get OCSP response</div>
+            <div style="font-size:0.78rem; margin-top:0.5rem">Find serial numbers in certificate details</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

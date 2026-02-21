@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app import db
 from app.models.certificate_db import Certificate, RevokedCertificate
+from app.revocation.crl_manager import generate_crl
 
 revoke_bp = Blueprint('revoke', __name__)
 
@@ -30,6 +31,10 @@ def revoke():
         db.session.add(revoked)
         db.session.commit()
 
+        try:
+            generate_crl()
+        except Exception as e:
+            print(f"  [CRL] Warning: could not regenerate CRL: {e}")
         flash(f'Certificate revoked for {owner_name}.', 'success')
         return redirect(url_for('dashboard.index'))
 
