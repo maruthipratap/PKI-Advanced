@@ -4,21 +4,54 @@
 <div class="page-header">
     <div class="page-label">// system audit trail</div>
     <h1 class="page-title">Audit Logs</h1>
-    <p class="page-sub">Last 200 system events — logins, certificate operations, revocations</p>
+    <p class="page-sub">Last 200 system events — filterable by action type</p>
 </div>
+
+<!-- Action filter -->
+<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; align-items:center">
+    <span style="font-size:0.78rem; color:var(--muted); font-family:var(--mono)">Filter:</span>
+    <a href="/audit?action=all"
+       style="text-decoration:none; padding:0.35rem 0.75rem; border-radius:6px; font-size:0.75rem; font-weight:700;
+              border:1px solid {{ 'var(--accent)' if active_filter == 'all' else 'var(--border)' }};
+              color:{{ 'var(--accent)' if active_filter == 'all' else 'var(--muted)' }}">All</a>
+    {% for action in all_actions %}
+    <a href="/audit?action={{ action }}"
+       style="text-decoration:none; padding:0.35rem 0.75rem; border-radius:6px; font-size:0.72rem; font-weight:600;
+              font-family:var(--mono);
+              border:1px solid {{ 'var(--accent)' if active_filter in action.lower() else 'var(--border)' }};
+              color:{{ 'var(--accent)' if active_filter in action.lower() else 'var(--muted)' }}">
+        {{ action }}
+    </a>
+    {% endfor %}
+</div>
+
 <div class="table-wrap">
     <table>
         <thead>
-            <tr><th>Timestamp</th><th>User</th><th>Action</th><th>Detail</th><th>IP Address</th><th>Status</th></tr>
+            <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Detail</th>
+                <th>IP Address</th>
+                <th>Status</th>
+            </tr>
         </thead>
         <tbody>
             {% for log in logs %}
             <tr>
-                <td class="mono" style="font-size:0.72rem; white-space:nowrap">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td class="mono" style="font-size:0.72rem; white-space:nowrap; color:var(--muted)">
+                    {{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+                </td>
                 <td class="text-accent mono" style="font-size:0.78rem">{{ log.username or '—' }}</td>
-                <td class="mono" style="font-size:0.75rem; color:var(--heading)">{{ log.action }}</td>
+                <td>
+                    <span style="font-family:var(--mono); font-size:0.72rem; padding:0.15rem 0.5rem;
+                           border-radius:4px; background:rgba(0,212,255,0.08); color:var(--heading)">
+                        {{ log.action }}
+                    </span>
+                </td>
                 <td class="text-muted" style="font-size:0.78rem">{{ log.detail or '—' }}</td>
-                <td class="mono" style="font-size:0.72rem; color:var(--muted)">{{ log.ip_address or '—' }}</td>
+                <td class="mono" style="font-size:0.7rem; color:var(--muted)">{{ log.ip_address or '—' }}</td>
                 <td>
                     {% if log.status == 'SUCCESS' %}
                         <span class="badge badge-active">✓ OK</span>

@@ -42,7 +42,11 @@ def create_app():
     from app.routes.revoke      import revoke_bp
     from app.routes.crl_ocsp    import crl_ocsp_bp
     from app.requests.routes    import requests_bp
+    from app.routes.renew       import renew_bp
+    from app.routes.admin       import admin_bp
 
+    app.register_blueprint(renew_bp)
+    app.register_blueprint(admin_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(portal_bp)
     app.register_blueprint(dashboard_bp)

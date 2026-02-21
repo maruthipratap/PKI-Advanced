@@ -122,9 +122,24 @@
         <!-- Actions -->
         <div style="display:flex; gap:0.75rem; margin-top:1.5rem; flex-wrap:wrap">
             <a href="/verify" class="btn btn-ghost">🔍 Verify</a>
-            {% if cert.status == 'ACTIVE' %}
-            <a href="/revoke" class="btn btn-danger">🚫 Revoke</a>
+        
+            {% if cert.status == 'ACTIVE' and not cert.is_expired() %}
+                <!-- Revoke button — owner or ca_admin -->
+                {% if current_user.is_ca_admin() or cert.owner_name == current_user.username %}
+                <a href="/revoke" class="btn btn-danger">🚫 Revoke</a>
+                {% endif %}
             {% endif %}
+        
+            {% if cert.status == 'ACTIVE' or cert.is_expired() %}
+                <!-- Renew button — owner or ca_admin -->
+                {% if current_user.is_ca_admin() or cert.owner_name == current_user.username %}
+                <form method="POST" action="/renew/{{ cert.id }}" style="display:inline"
+                      onsubmit="return confirm('Renew this certificate? The old one will be revoked.')">
+                    <button type="submit" class="btn btn-success">🔄 Renew Certificate</button>
+                </form>
+                {% endif %}
+            {% endif %}
+            
             <a href="/certificates" class="btn btn-ghost">← All Certificates</a>
         </div>
     </div>

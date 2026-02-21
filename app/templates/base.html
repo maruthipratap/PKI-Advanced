@@ -224,10 +224,12 @@
         <li><a href="/request"           class="{% if request.path == '/request' %}active{% endif %}">＋ Request Cert</a></li>
         <li><a href="/verify"            class="{% if request.path == '/verify' %}active{% endif %}">✓ Verify</a></li>
         {% if current_user.is_ca_admin() %}
-        <li><a href="/portal/ca"         class="{% if '/portal/ca' in request.path %}active{% endif %}">🏛 CA Portal</a></li>
-        <li><a href="/requests/review"   class="{% if '/requests/review' in request.path %}active{% endif %}">📋 Requests</a></li>
-        <li><a href="/crl"               class="{% if request.path == '/crl' %}active{% endif %}">📜 CRL</a></li>
-        <li><a href="/audit"             class="{% if request.path == '/audit' %}active{% endif %}">🔍 Audit</a></li>
+        <li><a href="/portal/ca"       class="{% if '/portal/ca' in request.path %}active{% endif %}">🏛 CA Portal</a></li>
+        <li><a href="/requests/review" class="{% if '/requests/review' in request.path %}active{% endif %}">📋 Requests</a></li>
+        <li><a href="/certificates"    class="{% if '/certificates' in request.path %}active{% endif %}">📂 Certs</a></li>
+        <li><a href="/admin/users"     class="{% if '/admin/users' in request.path %}active{% endif %}">👥 Users</a></li>
+        <li><a href="/crl"             class="{% if request.path == '/crl' %}active{% endif %}">📜 CRL</a></li>
+        <li><a href="/audit"           class="{% if request.path == '/audit' %}active{% endif %}">🔍 Audit</a></li>
         {% endif %}
     </ul>
 
