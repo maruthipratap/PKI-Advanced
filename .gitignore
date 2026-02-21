@@ -11,6 +11,11 @@ env/
 storage/root_ca/*.key
 storage/intermediate_ca/*.key
 storage/issued/*.key
+storage/test/*.key
+storage/
+*.key
+*.pem
+*.crt
 
 # Database
 *.db
