@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Login — PKI-Advanced{% endblock %}
+{% block content %}
+<div style="max-width:420px; margin:4rem auto">
+    <div class="page-header" style="text-align:center">
+        <div style="font-size:3rem; margin-bottom:1rem">🔐</div>
+        <div class="page-label">// secure access</div>
+        <h1 class="page-title" style="font-size:1.6rem">Sign In</h1>
+        <p class="page-sub">PKI-Advanced Certificate Authority</p>
+    </div>
+    <div class="card">
+        <form method="POST" action="/auth/login">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Enter username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:0.5rem">
+                → Sign In
+            </button>
+        </form>
+        <div style="text-align:center; margin-top:1.25rem; font-size:0.82rem; color:var(--muted)">
+            No account? <a href="/auth/register" class="text-accent" style="text-decoration:none">Register here</a>
+        </div>
+    </div>
+
+    <div style="margin-top:1.25rem; padding:1rem; background:rgba(0,212,255,0.04); border:1px solid var(--border); border-radius:8px; font-family:var(--mono); font-size:0.72rem; color:var(--muted)">
+        <div style="color:var(--accent); margin-bottom:0.4rem">// default admin credentials</div>
+        <div>username: <span style="color:var(--heading)">admin</span></div>
+        <div>password: <span style="color:var(--heading)">Admin@12345</span></div>
+        <div style="margin-top:0.4rem; color:var(--danger)">⚠ Change after first login</div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Profile — PKI-Advanced{% endblock %}
+{% block content %}
+<div style="max-width:680px; margin:0 auto">
+    <div class="page-header">
+        <div class="page-label">// account settings</div>
+        <h1 class="page-title">Profile</h1>
+        <p class="page-sub">Manage your account information and security settings</p>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:1.5rem">
+        <!-- Account Info -->
+        <div class="card">
+            <div class="page-label" style="margin-bottom:1rem">// account info</div>
+            <div class="cert-field">
+                <span class="cert-field-label">Username</span>
+                <span class="cert-field-value">{{ current_user.username }}</span>
+            </div>
+            <div class="cert-field">
+                <span class="cert-field-label">Role</span>
+                <span class="cert-field-value">
+                    <span class="role-pill role-{{ current_user.role_name }}">{{ current_user.role_name | upper }}</span>
+                </span>
+            </div>
+            <div class="cert-field">
+                <span class="cert-field-label">Member Since</span>
+                <span class="cert-field-value">{{ current_user.created_at.strftime('%Y-%m-%d') }}</span>
+            </div>
+            <div class="cert-field">
+                <span class="cert-field-label">Last Login</span>
+                <span class="cert-field-value">{{ current_user.last_login.strftime('%Y-%m-%d %H:%M') if current_user.last_login else '—' }}</span>
+            </div>
+
+            <!-- Update Email -->
+            <div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border)">
+                <div class="page-label" style="margin-bottom:0.75rem">// update email</div>
+                <form method="POST">
+                    <input type="hidden" name="action" value="update_email">
+                    <div class="form-group">
+                        <label>New Email</label>
+                        <input type="email" name="email" value="{{ current_user.email }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Update Email</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card">
+            <div class="page-label" style="margin-bottom:1rem">// change password</div>
+            <form method="POST">
+                <input type="hidden" name="action" value="change_password">
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <input type="password" name="current_password" required>
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" name="new_password" placeholder="Min. 8 characters" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" name="confirm_password" required>
+                </div>
+                <button type="submit" class="btn btn-danger btn-sm">🔒 Change Password</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- My Certificates -->
+    <div class="card">
+        <div class="page-label" style="margin-bottom:1rem">// my certificates</div>
+        {% if my_certs %}
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Owner</th><th>Issued</th><th>Expires</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                    {% for cert in my_certs %}
+                    <tr>
+                        <td style="font-weight:600; color:var(--heading)">{{ cert.owner_name }}</td>
+                        <td class="mono" style="font-size:0.75rem">{{ cert.issued_at.strftime('%Y-%m-%d') }}</td>
+                        <td class="mono" style="font-size:0.75rem">{{ cert.valid_to.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% if cert.status == 'ACTIVE' and not cert.is_expired() %}
+                                <span class="badge badge-active">● ACTIVE</span>
+                            {% elif cert.status == 'REVOKED' %}
+                                <span class="badge badge-revoked">✕ REVOKED</span>
+                            {% else %}
+                                <span class="badge badge-expired">⏰ EXPIRED</span>
+                            {% endif %}
+                        </td>
+                        <td><a href="/view/{{ cert.id }}" class="text-accent" style="font-size:0.78rem; text-decoration:none">View →</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align:center; padding:2rem; color:var(--muted); font-size:0.85rem">No certificates issued yet.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Home — PKI-Advanced{% endblock %}
+{% block content %}
+<div class="page-header" style="text-align:center; padding:2rem 0 2.5rem">
+    <div class="page-label">// enterprise certificate authority</div>
+    <h1 class="page-title" style="font-size:2.4rem">PKI-Advanced</h1>
+    <p class="page-sub" style="font-size:1rem">
+        Welcome, <strong style="color:var(--heading)">{{ current_user.username }}</strong> —
+        <span class="role-pill role-{{ current_user.role_name }}">{{ current_user.role_name | upper }}</span>
+    </p>
+</div>
+
+<!-- 3 Portal Cards -->
+<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; max-width:900px; margin:0 auto">
+
+    <!-- User Portal -->
+    <a href="/portal/user" style="text-decoration:none">
+        <div class="card" style="text-align:center; padding:2.5rem 1.5rem; transition:all 0.25s; cursor:pointer"
+             onmouseover="this.style.borderColor='var(--accent2)'; this.style.transform='translateY(-4px)'"
+             onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'">
+            <div style="font-size:3rem; margin-bottom:1rem">👤</div>
+            <div style="font-size:1.1rem; font-weight:800; color:var(--heading); margin-bottom:0.5rem">User Portal</div>
+            <div style="font-size:0.8rem; color:var(--muted); line-height:1.6">
+                Request certificates<br>View your certs<br>Download & manage
+            </div>
+            <div style="margin-top:1.25rem">
+                <span class="badge badge-active">● Open</span>
+            </div>
+        </div>
+    </a>
+
+    <!-- Server Admin Portal -->
+    <a href="{% if current_user.is_server_admin() or current_user.is_ca_admin() %}/portal/user{% else %}#{% endif %}"
+       style="text-decoration:none" onclick="{% if not current_user.is_server_admin() and not current_user.is_ca_admin() %}alert('Server Admin access required');return false{% endif %}">
+        <div class="card" style="text-align:center; padding:2.5rem 1.5rem; transition:all 0.25s; cursor:pointer"
+             onmouseover="this.style.borderColor='var(--warning)'; this.style.transform='translateY(-4px)'"
+             onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'">
+            <div style="font-size:3rem; margin-bottom:1rem">🖥️</div>
+            <div style="font-size:1.1rem; font-weight:800; color:var(--heading); margin-bottom:0.5rem">Server Portal</div>
+            <div style="font-size:0.8rem; color:var(--muted); line-height:1.6">
+                Server certificates<br>Renewal management<br>SSL/TLS certs
+            </div>
+            <div style="margin-top:1.25rem">
+                {% if current_user.is_server_admin() or current_user.is_ca_admin() %}
+                    <span class="badge badge-active">● Open</span>
+                {% else %}
+                    <span class="badge badge-revoked">🔒 Restricted</span>
+                {% endif %}
+            </div>
+        </div>
+    </a>
+
+    <!-- CA Admin Portal -->
+    <a href="{% if current_user.is_ca_admin() %}/portal/ca{% else %}#{% endif %}"
+       style="text-decoration:none" onclick="{% if not current_user.is_ca_admin() %}alert('CA Admin access required');return false{% endif %}">
+        <div class="card" style="text-align:center; padding:2.5rem 1.5rem; transition:all 0.25s; cursor:pointer"
+             onmouseover="this.style.borderColor='var(--accent)'; this.style.transform='translateY(-4px)'"
+             onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'">
+            <div style="font-size:3rem; margin-bottom:1rem">🏛️</div>
+            <div style="font-size:1.1rem; font-weight:800; color:var(--heading); margin-bottom:0.5rem">CA Portal</div>
+            <div style="font-size:0.8rem; color:var(--muted); line-height:1.6">
+                Approve requests<br>Issue & revoke certs<br>CRL · OCSP · Audit
+            </div>
+            <div style="margin-top:1.25rem">
+                {% if current_user.is_ca_admin() %}
+                    <span class="badge badge-active">● Open</span>
+                {% else %}
+                    <span class="badge badge-revoked">🔒 Restricted</span>
+                {% endif %}
+            </div>
+        </div>
+    </a>
+</div>
+{% endblock %}

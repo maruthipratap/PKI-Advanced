@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}CA Admin Portal — PKI-Advanced{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="page-label">// certificate authority admin</div>
+    <h1 class="page-title">CA Admin Portal</h1>
+    <p class="page-sub">Approve requests · Issue certificates · Manage revocations · Monitor system</p>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+    <div class="stat-card total">
+        <div class="stat-label">Total Issued</div>
+        <div class="stat-value">{{ all_certs | length }}</div>
+    </div>
+    <div class="stat-card active">
+        <div class="stat-label">Active</div>
+        <div class="stat-value">{{ all_certs | selectattr('status','eq','ACTIVE') | list | length }}</div>
+    </div>
+    <div class="stat-card revoked">
+        <div class="stat-label">Revoked</div>
+        <div class="stat-value">{{ all_certs | selectattr('status','eq','REVOKED') | list | length }}</div>
+    </div>
+    <div class="stat-card pending">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value">{{ pending | length }}</div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="actions-grid" style="grid-template-columns:repeat(4,1fr); margin-bottom:2rem">
+    <a href="/requests/review" class="action-card">
+        <div class="action-icon">📋</div>
+        <div class="action-title">Review Requests</div>
+        <div class="action-desc">Approve or reject pending certificate requests</div>
+        <div class="action-arrow">→ Review</div>
+    </a>
+    <a href="/revoke" class="action-card">
+        <div class="action-icon">🚫</div>
+        <div class="action-title">Revoke Certificate</div>
+        <div class="action-desc">Revoke any active certificate and update CRL</div>
+        <div class="action-arrow">→ Revoke</div>
+    </a>
+    <a href="/crl" class="action-card">
+        <div class="action-icon">📜</div>
+        <div class="action-title">CRL / OCSP</div>
+        <div class="action-desc">View and download revocation list</div>
+        <div class="action-arrow">→ View CRL</div>
+    </a>
+    <a href="/audit" class="action-card">
+        <div class="action-icon">🔍</div>
+        <div class="action-title">Audit Logs</div>
+        <div class="action-desc">Track all system actions and login events</div>
+        <div class="action-arrow">→ View Logs</div>
+    </a>
+</div>
+
+<!-- Pending Requests -->
+{% if pending %}
+<div class="card" style="margin-bottom:1.5rem; border-color:rgba(255,183,0,0.3)">
+    <div class="page-label" style="margin-bottom:1rem; color:var(--warning)">// ⏳ pending approval — {{ pending|length }} request(s)</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Requester</th><th>Owner Name</th><th>Org</th><th>Purpose</th><th>Requested</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for req in pending %}
+                <tr>
+                    <td class="text-muted" style="font-size:0.8rem">{{ req.requester.username }}</td>
+                    <td style="font-weight:600; color:var(--heading)">{{ req.owner_name }}</td>
+                    <td class="text-muted">{{ req.organization or '—' }}</td>
+                    <td class="text-muted" style="font-size:0.78rem">{{ req.purpose or '—' }}</td>
+                    <td class="mono" style="font-size:0.75rem">{{ req.requested_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <div style="display:flex; gap:0.4rem">
+                            <form method="POST" action="/requests/approve/{{ req.id }}" style="display:inline">
+                                <button type="submit" class="btn btn-success btn-sm">✓ Approve</button>
+                            </form>
+                            <button class="btn btn-danger btn-sm"
+                                onclick="document.getElementById('reject-{{ req.id }}').style.display='block'">✕ Reject</button>
+                        </div>
+                        <!-- Reject form (hidden) -->
+                        <div id="reject-{{ req.id }}" style="display:none; margin-top:0.5rem">
+                            <form method="POST" action="/requests/reject/{{ req.id }}">
+                                <input type="text" name="reason" placeholder="Rejection reason" required style="margin-bottom:0.3rem">
+                                <button type="submit" class="btn btn-danger btn-sm">Confirm Reject</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- All Certificates -->
+<div class="card">
+    <div class="page-label" style="margin-bottom:1rem">// all issued certificates</div>
+    {% if all_certs %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Owner</th><th>Org</th><th>Issued</th><th>Expires</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for cert in all_certs %}
+                <tr>
+                    <td style="font-weight:600; color:var(--heading)">{{ cert.owner_name }}</td>
+                    <td class="text-muted" style="font-size:0.8rem">{{ cert.organization or '—' }}</td>
+                    <td class="mono" style="font-size:0.75rem">{{ cert.issued_at.strftime('%Y-%m-%d') }}</td>
+                    <td class="mono" style="font-size:0.75rem">{{ cert.valid_to.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if cert.status == 'ACTIVE' and not cert.is_expired() %}
+                            <span class="badge badge-active">● ACTIVE</span>
+                        {% elif cert.status == 'REVOKED' %}
+                            <span class="badge badge-revoked">✕ REVOKED</span>
+                        {% else %}
+                            <span class="badge badge-expired">⏰ EXPIRED</span>
+                        {% endif %}
+                    </td>
+                    <td><a href="/view/{{ cert.id }}" class="text-accent" style="font-size:0.78rem; text-decoration:none">View →</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:2rem; color:var(--muted)">No certificates issued yet.</div>
+    {% endif %}
+</div>
+{% endblock %}

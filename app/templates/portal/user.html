@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}User Portal — PKI-Advanced{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="page-label">// user portal</div>
+    <h1 class="page-title">My Certificate Dashboard</h1>
+    <p class="page-sub">Manage your certificate requests and issued certificates</p>
+</div>
+
+<div class="actions-grid" style="margin-bottom:2rem; margin-top:0">
+    <a href="/request" class="action-card">
+        <div class="action-icon">📜</div>
+        <div class="action-title">Request Certificate</div>
+        <div class="action-desc">Submit a new certificate signing request to the CA</div>
+        <div class="action-arrow">→ Submit request</div>
+    </a>
+    <a href="/verify" class="action-card">
+        <div class="action-icon">🔍</div>
+        <div class="action-title">Verify Certificate</div>
+        <div class="action-desc">Check the validity and revocation status of any cert</div>
+        <div class="action-arrow">→ Verify now</div>
+    </a>
+    <a href="/auth/profile" class="action-card">
+        <div class="action-icon">⚙️</div>
+        <div class="action-title">Profile Settings</div>
+        <div class="action-desc">Update email, change password, view account info</div>
+        <div class="action-arrow">→ Manage profile</div>
+    </a>
+</div>
+
+<!-- My Requests -->
+<div class="card">
+    <div class="flex items-center justify-between" style="margin-bottom:1.25rem">
+        <div>
+            <div class="page-label" style="margin-bottom:0.2rem">// my certificate requests</div>
+            <h2 style="font-size:1rem; font-weight:700; color:var(--heading)">Request History</h2>
+        </div>
+        <a href="/request" class="btn btn-primary btn-sm">＋ New Request</a>
+    </div>
+
+    {% if my_requests %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Owner Name</th>
+                    <th>Organization</th>
+                    <th>Requested</th>
+                    <th>Status</th>
+                    <th>Reviewed By</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in my_requests %}
+                <tr>
+                    <td style="font-weight:600; color:var(--heading)">{{ req.owner_name }}</td>
+                    <td class="text-muted">{{ req.organization or '—' }}</td>
+                    <td class="mono" style="font-size:0.75rem">{{ req.requested_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {% if req.status == 'PENDING' %}
+                            <span class="badge badge-pending">⏳ PENDING</span>
+                        {% elif req.status == 'APPROVED' %}
+                            <span class="badge badge-approved">✓ APPROVED</span>
+                        {% elif req.status == 'REJECTED' %}
+                            <span class="badge badge-rejected">✕ REJECTED</span>
+                        {% else %}
+                            <span class="badge badge-revoked">✕ REVOKED</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted" style="font-size:0.8rem">{{ req.reviewed_by or '—' }}</td>
+                    <td>
+                        {% if req.status == 'APPROVED' and req.certificate_id %}
+                            <a href="/view/{{ req.certificate_id }}" class="text-accent" style="font-size:0.78rem; text-decoration:none">View Cert →</a>
+                        {% elif req.status == 'REJECTED' %}
+                            <span class="text-danger" style="font-size:0.75rem" title="{{ req.reject_reason }}">See reason</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:3rem; color:var(--muted)">
+        <div style="font-size:2.5rem; margin-bottom:0.75rem">📋</div>
+        <div style="font-size:0.88rem">No certificate requests yet.</div>
+        <a href="/request" class="btn btn-primary" style="margin-top:1rem; display:inline-flex">Submit First Request</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Review Requests — PKI-Advanced{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="page-label">// ca admin — request management</div>
+    <h1 class="page-title">Certificate Requests</h1>
+    <p class="page-sub">Review, approve, or reject pending certificate requests</p>
+</div>
+
+<!-- Pending -->
+<div class="card" style="margin-bottom:1.5rem">
+    <div class="page-label" style="margin-bottom:1rem; color:var(--warning)">// pending requests ({{ pending|length }})</div>
+    {% if pending %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>User</th><th>Owner Name</th><th>Email</th><th>Org</th><th>Purpose</th><th>Requested</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for req in pending %}
+                <tr>
+                    <td class="text-accent mono" style="font-size:0.78rem">{{ req.requester.username }}</td>
+                    <td style="font-weight:600; color:var(--heading)">{{ req.owner_name }}</td>
+                    <td class="text-muted" style="font-size:0.78rem">{{ req.email or '—' }}</td>
+                    <td class="text-muted" style="font-size:0.78rem">{{ req.organization or '—' }}</td>
+                    <td class="text-muted" style="font-size:0.75rem; max-width:180px">{{ req.purpose or '—' }}</td>
+                    <td class="mono" style="font-size:0.73rem">{{ req.requested_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        <div style="display:flex; gap:0.4rem; flex-wrap:wrap">
+                            <form method="POST" action="/requests/approve/{{ req.id }}">
+                                <button type="submit" class="btn btn-success btn-sm">✓ Approve</button>
+                            </form>
+                            <button class="btn btn-danger btn-sm"
+                                onclick="document.getElementById('rej-{{ req.id }}').style.display='block';this.style.display='none'">
+                                ✕ Reject
+                            </button>
+                        </div>
+                        <div id="rej-{{ req.id }}" style="display:none; margin-top:0.5rem">
+                            <form method="POST" action="/requests/reject/{{ req.id }}">
+                                <input type="text" name="reason" placeholder="Reason for rejection" required
+                                    style="margin-bottom:0.4rem; font-size:0.78rem; padding:0.4rem 0.6rem">
+                                <div style="display:flex; gap:0.4rem">
+                                    <button type="submit" class="btn btn-danger btn-sm">Confirm</button>
+                                    <button type="button" class="btn btn-ghost btn-sm"
+                                        onclick="document.getElementById('rej-{{ req.id }}').style.display='none'">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align:center; padding:2rem; color:var(--muted)">
+        <div style="font-size:2rem; margin-bottom:0.5rem">✅</div>
+        <div style="font-size:0.85rem">No pending requests — all clear!</div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- All Requests History -->
+<div class="card">
+    <div class="page-label" style="margin-bottom:1rem">// all requests history</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>User</th><th>Owner Name</th><th>Requested</th><th>Status</th><th>Reviewed By</th><th>Reviewed At</th></tr>
+            </thead>
+            <tbody>
+                {% for req in all_reqs %}
+                <tr>
+                    <td class="text-accent mono" style="font-size:0.78rem">{{ req.requester.username }}</td>
+                    <td style="font-weight:600; color:var(--heading)">{{ req.owner_name }}</td>
+                    <td class="mono" style="font-size:0.73rem">{{ req.requested_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {% if req.status == 'PENDING' %}<span class="badge badge-pending">⏳ PENDING</span>
+                        {% elif req.status == 'APPROVED' %}<span class="badge badge-approved">✓ APPROVED</span>
+                        {% elif req.status == 'REJECTED' %}<span class="badge badge-rejected">✕ REJECTED</span>
+                        {% else %}<span class="badge badge-revoked">✕ REVOKED</span>{% endif %}
+                    </td>
+                    <td class="text-muted" style="font-size:0.8rem">{{ req.reviewed_by or '—' }}</td>
+                    <td class="mono" style="font-size:0.73rem">{{ req.reviewed_at.strftime('%Y-%m-%d %H:%M') if req.reviewed_at else '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
