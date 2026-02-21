@@ -45,10 +45,11 @@
                 <tr>
                     <th>Owner Name</th>
                     <th>Organization</th>
+                    <th>Purpose</th>
                     <th>Requested</th>
                     <th>Status</th>
                     <th>Reviewed By</th>
-                    <th></th>
+                    <th>Details / Reason</th>
                 </tr>
             </thead>
             <tbody>
@@ -56,6 +57,7 @@
                 <tr>
                     <td style="font-weight:600; color:var(--heading)">{{ req.owner_name }}</td>
                     <td class="text-muted">{{ req.organization or '—' }}</td>
+                    <td class="text-muted" style="font-size:0.75rem; max-width:140px">{{ req.purpose or '—' }}</td>
                     <td class="mono" style="font-size:0.75rem">{{ req.requested_at.strftime('%Y-%m-%d %H:%M') }}</td>
                     <td>
                         {% if req.status == 'PENDING' %}
@@ -73,7 +75,16 @@
                         {% if req.status == 'APPROVED' and req.certificate_id %}
                             <a href="/view/{{ req.certificate_id }}" class="text-accent" style="font-size:0.78rem; text-decoration:none">View Cert →</a>
                         {% elif req.status == 'REJECTED' %}
-                            <span class="text-danger" style="font-size:0.75rem" title="{{ req.reject_reason }}">See reason</span>
+                            <div style="font-size:0.75rem; color:var(--danger)">
+                                ✕ Rejected
+                                {% if req.reject_reason %}
+                                <div style="margin-top:0.3rem; padding:0.4rem 0.6rem; background:rgba(255,69,96,0.08);
+                                            border:1px solid rgba(255,69,96,0.2); border-radius:6px;
+                                            color:#ff8099; font-size:0.72rem; font-family:var(--mono); max-width:200px">
+                                    "{{ req.reject_reason }}"
+                                </div>
+                                {% endif %}
+                            </div>
                         {% endif %}
                     </td>
                 </tr>

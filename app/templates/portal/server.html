@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Server Portal — PKI-Advanced{% endblock %}
+{% block content %}
+
+<div class="page-header">
+    <div class="page-label">// server admin portal</div>
+    <h1 class="page-title">Server Portal</h1>
+    <p class="page-sub">Manage server and infrastructure certificates</p>
+</div>
+
+<!-- Coming Soon notice -->
+<div style="max-width:600px; margin:0 auto; text-align:center; padding:3rem 0">
+    <div style="font-size:4rem; margin-bottom:1.5rem">🖥️</div>
+
+    <div class="card" style="text-align:left; margin-bottom:1.5rem">
+        <div class="page-label" style="margin-bottom:1rem">// server portal — planned features</div>
+
+        <div style="display:flex; flex-direction:column; gap:0.85rem; font-size:0.85rem">
+            <div style="display:flex; gap:0.75rem; align-items:flex-start; padding:0.75rem;
+                        background:var(--surface); border-radius:8px; border:1px solid var(--border)">
+                <span style="color:var(--accent); font-size:1.1rem">🔑</span>
+                <div>
+                    <div style="font-weight:700; color:var(--heading); margin-bottom:0.2rem">Server Certificate Requests</div>
+                    <div class="text-muted">Request SSL/TLS certificates for servers using hostname/domain fields (CN = domain name)</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:0.75rem; align-items:flex-start; padding:0.75rem;
+                        background:var(--surface); border-radius:8px; border:1px solid var(--border)">
+                <span style="color:var(--accent); font-size:1.1rem">🔄</span>
+                <div>
+                    <div style="font-weight:700; color:var(--heading); margin-bottom:0.2rem">Auto Renewal</div>
+                    <div class="text-muted">Automatic renewal reminders and one-click renewal for server certificates before expiry</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:0.75rem; align-items:flex-start; padding:0.75rem;
+                        background:var(--surface); border-radius:8px; border:1px solid var(--border)">
+                <span style="color:var(--accent); font-size:1.1rem">📋</span>
+                <div>
+                    <div style="font-weight:700; color:var(--heading); margin-bottom:0.2rem">Server Inventory</div>
+                    <div class="text-muted">View all server certificates, their hostnames, expiry dates, and current status in one place</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="padding:1rem; background:rgba(0,212,255,0.05); border:1px solid rgba(0,212,255,0.2);
+                border-radius:8px; font-family:var(--mono); font-size:0.78rem; color:var(--muted)">
+        <span style="color:var(--accent)">// note:</span>
+        Server portal is under development. As a Server Admin you can currently
+        use the <a href="/request" class="text-accent" style="text-decoration:none">certificate request flow</a>
+        and <a href="/certificates" class="text-accent" style="text-decoration:none">certificate registry</a>
+        for your server certificate needs.
+    </div>
+
+    <div style="display:flex; gap:0.75rem; justify-content:center; margin-top:1.5rem">
+        <a href="/request"      class="btn btn-primary">＋ Request Server Cert</a>
+        <a href="/certificates" class="btn btn-ghost">📂 View Certificates</a>
+    </div>
+</div>
+{% endblock %}

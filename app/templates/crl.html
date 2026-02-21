@@ -1,46 +1,134 @@
 {% extends "base.html" %}
-{% block title %}Certificate Revocation List — PKI-Advanced{% endblock %}
+{% block title %}CRL & OCSP — PKI-Advanced{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <div class="page-label">// certificate revocation list</div>
-    <h1 class="page-title">CRL — Revocation List</h1>
-    <p class="page-sub">Signed by Intermediate CA · Valid for 7 days</p>
+    <div class="page-label">// revocation services</div>
+    <h1 class="page-title">CRL &amp; OCSP</h1>
+    <p class="page-sub">Certificate Revocation List · Online Certificate Status Protocol</p>
 </div>
 
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start">
+<!-- Tab switcher -->
+<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem">
+    <a href="#crl-section"
+       style="text-decoration:none; padding:0.45rem 1.1rem; border-radius:8px; font-size:0.82rem;
+              font-weight:700; background:rgba(0,212,255,0.1); color:var(--accent);
+              border:1px solid rgba(0,212,255,0.3)">📜 CRL</a>
+    <a href="#ocsp-section"
+       style="text-decoration:none; padding:0.45rem 1.1rem; border-radius:8px; font-size:0.82rem;
+              font-weight:700; background:transparent; color:var(--muted);
+              border:1px solid var(--border)">⚡ OCSP</a>
+</div>
 
-    <div class="card">
-        <div class="page-label" style="margin-bottom:1rem">// crl metadata</div>
-        {% if crl_info %}
-        <div class="cert-field">
-            <span class="cert-field-label">Issuer</span>
-            <span class="cert-field-value mono" style="font-size:0.75rem">{{ crl_info.issuer }}</span>
+<!-- CRL SECTION -->
+<div id="crl-section" style="margin-bottom:2rem">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start">
+
+        <div class="card">
+            <div class="page-label" style="margin-bottom:1rem">// crl metadata</div>
+            {% if crl_info %}
+            <div class="cert-field">
+                <span class="cert-field-label">Issuer</span>
+                <span class="cert-field-value mono" style="font-size:0.73rem">{{ crl_info.issuer }}</span>
+            </div>
+            <div class="cert-field">
+                <span class="cert-field-label">Last Update</span>
+                <span class="cert-field-value">{{ crl_info.last_update }}</span>
+            </div>
+            <div class="cert-field">
+                <span class="cert-field-label">Next Update</span>
+                <span class="cert-field-value">{{ crl_info.next_update }}</span>
+            </div>
+            <div class="cert-field">
+                <span class="cert-field-label">Revoked Certificates</span>
+                <span class="cert-field-value text-danger" style="font-size:1.5rem; font-weight:800">
+                    {{ crl_info.revoked_count }}
+                </span>
+            </div>
+            {% else %}
+            <div class="text-muted" style="font-size:0.85rem">No CRL generated yet. Revoke a certificate first.</div>
+            {% endif %}
+            <div style="margin-top:1.5rem; display:flex; gap:0.75rem; flex-wrap:wrap">
+                <a href="/crl/download" class="btn btn-primary">⬇ Download CRL</a>
+                <a href="/crl"          class="btn btn-ghost">↺ Regenerate</a>
+            </div>
         </div>
-        <div class="cert-field">
-            <span class="cert-field-label">Last Update</span>
-            <span class="cert-field-value">{{ crl_info.last_update }}</span>
-        </div>
-        <div class="cert-field">
-            <span class="cert-field-label">Next Update</span>
-            <span class="cert-field-value">{{ crl_info.next_update }}</span>
-        </div>
-        <div class="cert-field">
-            <span class="cert-field-label">Revoked Certificates</span>
-            <span class="cert-field-value text-danger" style="font-size:1.5rem; font-weight:800">
-                {{ crl_info.revoked_count }}
-            </span>
-        </div>
-        {% endif %}
-        <div style="margin-top:1.5rem; display:flex; gap:0.75rem">
-            <a href="/crl/download" class="btn btn-primary">⬇ Download CRL</a>
-            <a href="/crl" class="btn btn-ghost">↺ Regenerate</a>
+
+        <div class="card">
+            <div class="page-label" style="margin-bottom:0.75rem">// crl pem output</div>
+            <div class="pem-block">{{ crl_pem or 'No CRL generated yet.' }}</div>
         </div>
     </div>
+</div>
 
-    <div class="card">
-        <div class="page-label" style="margin-bottom:0.75rem">// crl pem</div>
-        <div class="pem-block">{{ crl_pem }}</div>
+<!-- OCSP SECTION -->
+<div id="ocsp-section">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; align-items:start">
+
+        <!-- OCSP Query Form -->
+        <div class="card">
+            <div class="page-label" style="margin-bottom:1rem">// ocsp — real-time status check</div>
+            <form method="POST" action="/ocsp">
+                <div class="form-group">
+                    <label>Certificate Serial Number</label>
+                    <input type="text" name="serial"
+                        placeholder="Paste serial number from any certificate"
+                        required autocomplete="off">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center">
+                    ⚡ Check OCSP Status
+                </button>
+            </form>
+
+            <div style="margin-top:1.5rem; padding:1rem; background:var(--surface);
+                        border:1px solid var(--border); border-radius:8px">
+                <div class="page-label" style="margin-bottom:0.5rem">// rest api endpoint</div>
+                <div class="mono" style="font-size:0.75rem; color:var(--accent2)">
+                    GET /ocsp/&lt;serial_number&gt;
+                </div>
+                <div style="font-size:0.75rem; color:var(--muted); margin-top:0.35rem">
+                    Returns JSON — integrates with any PKI client or script
+                </div>
+            </div>
+
+            <!-- Quick links to cert serials -->
+            <div style="margin-top:1rem; font-size:0.78rem; color:var(--muted)">
+                💡 Find serial numbers in
+                <a href="/certificates" class="text-accent" style="text-decoration:none">
+                    Certificate Registry →
+                </a>
+            </div>
+        </div>
+
+        <!-- OCSP Info -->
+        <div class="card">
+            <div class="page-label" style="margin-bottom:1rem">// how ocsp works</div>
+            <div style="display:flex; flex-direction:column; gap:0.75rem; font-size:0.82rem">
+                <div style="display:flex; gap:0.75rem; padding:0.75rem; background:var(--surface); border-radius:8px; border:1px solid var(--border)">
+                    <span style="color:var(--accent); font-weight:800; min-width:1.5rem">1.</span>
+                    <div><span style="color:var(--heading); font-weight:600">Client sends serial</span>
+                    <div class="text-muted" style="margin-top:0.2rem">Certificate serial number is submitted to the OCSP responder</div></div>
+                </div>
+                <div style="display:flex; gap:0.75rem; padding:0.75rem; background:var(--surface); border-radius:8px; border:1px solid var(--border)">
+                    <span style="color:var(--accent); font-weight:800; min-width:1.5rem">2.</span>
+                    <div><span style="color:var(--heading); font-weight:600">Responder checks DB</span>
+                    <div class="text-muted" style="margin-top:0.2rem">Queries MySQL for certificate status — ACTIVE, REVOKED, or EXPIRED</div></div>
+                </div>
+                <div style="display:flex; gap:0.75rem; padding:0.75rem; background:var(--surface); border-radius:8px; border:1px solid var(--border)">
+                    <span style="color:var(--accent); font-weight:800; min-width:1.5rem">3.</span>
+                    <div><span style="color:var(--heading); font-weight:600">Signed response returned</span>
+                    <div class="text-muted" style="margin-top:0.2rem">JSON response with status, timestamp, and CA chain info</div></div>
+                </div>
+            </div>
+
+            <div style="margin-top:1.25rem; padding:0.85rem; background:rgba(0,255,159,0.05);
+                        border:1px solid rgba(0,255,159,0.2); border-radius:8px;
+                        font-size:0.78rem; color:var(--muted)">
+                <span style="color:var(--accent2)">✓ OCSP vs CRL:</span>
+                OCSP gives real-time per-certificate status while CRL is a
+                periodically published list. OCSP is faster for individual checks.
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

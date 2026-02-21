@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import current_user
 from app.auth.decorators import login_required
 
@@ -22,18 +22,27 @@ def user_portal():
     return render_template('portal/user.html', my_requests=my_requests)
 
 
+@portal_bp.route('/portal/server')
+@login_required
+def server_portal():
+    # Only server_admin or ca_admin can access
+    if not (current_user.is_server_admin() or current_user.is_ca_admin()):
+        flash('Server Admin access required.', 'error')
+        return redirect(url_for('portal.landing'))
+    return render_template('portal/server.html')
+
+
 @portal_bp.route('/portal/ca')
 @login_required
 def ca_portal():
     if not current_user.is_ca_admin():
-        from flask import flash
         flash('CA Admin access required.', 'error')
         return redirect(url_for('portal.landing'))
 
     from app.requests.models import CertificateRequest
     from app.models.certificate_db import Certificate
 
-    pending  = CertificateRequest.query.filter_by(status='PENDING').all()
+    pending   = CertificateRequest.query.filter_by(status='PENDING').all()
     all_certs = Certificate.query.order_by(Certificate.issued_at.desc()).all()
     return render_template('portal/ca_admin.html',
         pending=pending, all_certs=all_certs
